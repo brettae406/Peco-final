@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Peco Lens</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#05070a" />
+  <link rel="icon" type="image/png" href="icon-192.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- LOGIN -->
+  <div id="loginLayer" class="login-layer active">
+    <div class="login-card">
+      <h1 class="app-title">Peco Lens</h1>
+      <p class="app-subtitle">Technician Command Suite</p>
+
+      <div class="login-field">
+        <label>Username</label>
+        <input id="loginUsername" type="text" />
+      </div>
+
+      <div class="login-field">
+        <label>Passcode</label>
+        <input id="loginPasscode" type="password" />
+      </div>
+
+      <button class="primary-button" onclick="login()">Enter</button>
+      <p id="loginError" class="login-error hidden"></p>
+      <p class="login-hint">Default admin: brett / 1214</p>
+    </div>
+  </div>
+
+  <!-- APP SHELL -->
+  <div id="appShell" class="app-shell hidden">
+    <header class="app-header">
+      <div class="app-header-left">
+        <span class="app-logo-dot"></span>
+        <span class="app-header-title">Peco Lens</span>
+      </div>
+      <div class="app-header-right">
+        <button class="header-chip" onclick="openLayer('menu')">Menu</button>
+        <button class="header-chip" onclick="toggleHighContrast()">HC</button>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <div id="layerTrack" class="layer-track">
+
+        <!-- MENU -->
+        <section class="layer" data-layer-key="menu">
+          <div class="card-track">
+            <article class="card">
+              <div class="card-header">
+                <h2>Main Menu</h2>
+                <p>Swipe up/down for layers, left/right for cards.</p>
+              </div>
+
+              <div class="card-body">
+                <div class="menu-grid">
+                  <button class="menu-button" onclick="openLayer('lens')">Lens</button>
+                  <button class="menu-button" onclick="openLayer('tools')">Tools</button>
+                  <button class="menu-button" onclick="openLayer('maintenance')">Maintenance</button>
+                  <button class="menu-button" onclick="openLayer('pm')">PM Engine</button>
+                  <button class="menu-button" onclick="openLayer('messaging')">Messaging</button>
+                  <button class="menu-button" onclick="openLayer('training')">Training</button>
+                  <button class="menu-button" onclick="openLayer('matrixLog')">Matrix Log</button>
+                  <button class="menu-button" onclick="openLayer('settings')">Settings</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- LENS -->
+        <section class="layer" data-layer-key="lens">
+          <div class="card-track">
+            <article class="card">
+              <div class="card-header">
+                <h2>Lens View</h2>
+              </div>
+
+              <div class="card-body">
+                <video id="cameraFeed" autoplay playsinline class="lens-video"></video>
+                <button class="primary-button full-width" onclick="captureAndAnalyze()">Analyze</button>
+                <div id="lensAnalysis" class="lens-analysis">Point camera and tap Analyze.</div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- TOOLS -->
+        <section class="layer" data-layer-key="tools">
+          <div class="card-track">
+
+            <!-- Diagnostics -->
+            <article class="card">
+              <div class="card-header">
+                <h2>Diagnostics</h2>
+              </div>
+              <div class="card-body">
+                <textarea id="diagnosticsInput" class="text-area"></textarea>
+                <button class="primary-button full-width" onclick="runDiagnostics()">Run</button>
+                <pre id="diagnosticsOutput" class="diagnostics-output">Waiting…</pre>
+              </div>
+            </article>
+
+            <!-- Profiles -->
+            <article class="card">
+              <div class="card-header">
+                <h2>Profiles</h2>
+              </div>
+              <div class="card-body">
+                <input id="profileName" placeholder="Name" />
+                <input id="profileLocation" placeholder="Location" />
+                <textarea id="profileNotes" class="text-area small" placeholder="Notes"></textarea>
+                <button onclick="saveProfile()" class="primary-button">Save</button>
+                <button onclick="clearProfiles()" class="secondary-button">Clear</button>
+                <div id="profilesList" class="scroll-box"></div>
+              </div>
+            </article>
+
+            <!-- History -->
+            <article class="card">
+              <div class="card-header">
+                <h2>History</h2>
+              </div>
+              <div class="card-body">
+                <button onclick="clearHistory()" class="secondary-button">Clear</button>
+                <div id="historyList" class="scroll-box"></div>
+              </div>
+            </article>
+
+          </div>
+        </section>
+
+        <!-- MAINTENANCE -->
+        <section class="layer" data-layer-key="maintenance">
+          <div class="card-track">
+            <article class="card">
+              <div class="card-header"><h2>Maintenance</h2></div>
+              <div class="card-body">
+                <div id="maintenanceList" class="scroll-box"></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- PM ENGINE -->
+        <section class="layer" data-layer-key="pm">
+          <div class="card-track">
+            <article class="card">
+              <div class="card-header"><h2>PM Engine</h2></div>
+              <div class="card-body">
+                <input id="pmFilterSystem" placeholder="System" />
+                <input id="pmFilterMachine" placeholder="Machine" />
+                <input id="pmFilterFrequency" placeholder="Frequency" />
+                <div id="pmList" class="scroll-box"></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- MESSAGING -->
+        <section class="layer" data-layer-key="messaging">
+          <div class="card-track">
+            <article class="card">
+              <div class="card-header"><h2>Messaging</h2></div>
+              <div class="card-body">
+                <div id="userList" class="scroll-box small"></div>
+                <div id="chatLog" class="chat-log"></div>
+                <input id="chatInput" placeholder="Message…" />
+                <button onclick="sendUserMessage()" class="primary-button">Send</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- TRAINING -->
+        <section class="layer" data-layer-key="training">
+          <div class="card-track">
+            <article class="card">
+              <div class="card-header"><h2>Training</h2></div>
+              <div class="card-body">
+                <div id="trainingModulesGrasselli"></div>
+                <div id="trainingContentGrasselli"></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- MATRIX LOG -->
+        <section class="layer" data-layer-key="matrixLog">
+          <div class="card-track">
+            <article class="card">
+              <div class="card-header"><h2>Matrix Log</h2></div>
+              <div class="card-body">
+                <div id="matrixLogBody"></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section class="layer" data-layer-key="settings">
+          <div class="card-track">
+            <article class="card">
+              <div class="card-header"><h2>Settings</h2></div>
+              <div class="card-body">
+                <button onclick="toggleHighContrast()" class="secondary-button">Toggle HC</button>
+                <div id="userManagerList"></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
